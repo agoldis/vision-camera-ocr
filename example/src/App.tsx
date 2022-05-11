@@ -39,6 +39,14 @@ export default function App() {
     })();
   }, []);
 
+  // camera format settings
+  const formats = React.useMemo(() => {
+    if (device?.formats == null) return [];
+    return device.formats
+      .sort((a, b) => a.videoWidth - b.videoWidth)
+      .filter((f) => f.pixelFormat === '420f' && f.videoWidth >= 640);
+  }, [device?.formats]);
+
   const renderOverlay = () => {
     return (
       <>
@@ -52,15 +60,15 @@ export default function App() {
               style={{
                 position: 'absolute',
                 left: block.frame.x * pixelRatio,
-                top: block.frame.y * pixelRatio,
-                backgroundColor: 'white',
-                padding: 8,
+                top: block.frame.y * pixelRatio + 100,
+                backgroundColor: 'rgb(0, 0, 0, 0.5)',
+                // padding: 20,
                 borderRadius: 6,
               }}
             >
               <Text
                 style={{
-                  fontSize: 25,
+                  fontSize: 20,
                   justifyContent: 'center',
                   textAlign: 'center',
                 }}
@@ -81,6 +89,8 @@ export default function App() {
         frameProcessor={frameProcessor}
         device={device}
         isActive={true}
+        format={formats[0]}
+        orientation="portrait"
         frameProcessorFps={5}
         onLayout={(event: LayoutChangeEvent) => {
           setPixelRatio(
