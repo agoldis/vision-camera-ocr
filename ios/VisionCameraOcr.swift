@@ -6,7 +6,7 @@ import MLKitTextRecognition
 @objc(OCRFrameProcessorPlugin)
 public class OCRFrameProcessorPlugin: NSObject, FrameProcessorPluginBase {
     
-    private static var textRecognizer = TextRecognizer.textRecognizer()
+    private static var textRecognizer = TextRecognizer.textRecognizer(options: TextRecognizerOptions())
     
     private static func getBlockArray(_ blocks: [TextBlock]) -> [[String: Any]] {
         
@@ -107,21 +107,10 @@ public class OCRFrameProcessorPlugin: NSObject, FrameProcessorPluginBase {
     
     @objc
     public static func callback(_ frame: Frame!, withArgs _: [Any]!) -> Any! {
-        
-        guard (CMSampleBufferGetImageBuffer(frame.buffer) != nil) else {
-          print("Failed to get image buffer from sample buffer.")
-          return nil
-        }
-
         let visionImage = VisionImage(buffer: frame.buffer)
-        
-        // TODO: Get camera orientation state
-        visionImage.orientation = .up
-        
         var result: Text
         do {
-          result = try TextRecognizer.textRecognizer()
-            .results(in: visionImage)
+          result = try textRecognizer.results(in: visionImage)
         } catch let error {
           print("Failed to recognize text with error: \(error.localizedDescription).")
           return nil
